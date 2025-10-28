@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using quiz.hub.API.Extentions;
 using quiz.hub.API.Middlewares;
+using quiz.hub.Application.Options;
 using quiz.hub.Domain.Identity;
 using quiz.hub.Infrastructure.Data;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,10 +25,19 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o=>
 }).AddEntityFrameworkStores<AppDbContext>();
 
 
+// add JWT validation extention
+builder.Services.AddJwtAuthentication();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+// Bind JwtOptions once and validate it
+builder.Services.AddOptions<JwtOptions>()
+    .Bind(builder.Configuration.GetSection("JWT"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 var app = builder.Build();
 
