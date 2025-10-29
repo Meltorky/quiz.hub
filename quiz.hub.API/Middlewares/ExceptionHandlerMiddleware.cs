@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using quiz.hub.Application.Common;
+using quiz.hub.Application.Common.Exceptions;
 
 namespace quiz.hub.API.Middlewares
 {
@@ -39,6 +39,10 @@ namespace quiz.hub.API.Middlewares
             catch (OperationCanceledException ex)
             {
                 await WriteProblemAsync(context, ex, StatusCodes.Status499ClientClosedRequest, "Request canceled", LogLevel.Information);
+            }
+            catch (DuplicateEmailException ex)
+            {
+                await WriteProblemAsync(context, ex, StatusCodes.Status400BadRequest, "Duplicate Email", LogLevel.Information);
             }
             catch (Exception ex)
             {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace quiz.hub.Application.Common
+namespace quiz.hub.Application.Common.Exceptions
 {
     public class OperationFailedException : Exception
     {

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using quiz.hub.Application.Options;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace quiz.hub.API.Extentions
