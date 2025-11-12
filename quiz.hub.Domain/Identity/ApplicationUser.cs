@@ -2,14 +2,14 @@
 using quiz.hub.Domain.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace quiz.hub.Domain.Identity
 {
     public class ApplicationUser : IdentityUser
     {
+        [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
         public byte[]? Cover { get; set; }
 

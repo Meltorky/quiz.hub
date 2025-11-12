@@ -1,10 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using quiz.hub.API.Extentions;
-using quiz.hub.API.Middlewares;
-using quiz.hub.Application.Options;
-using quiz.hub.Domain.Identity;
-using quiz.hub.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,8 +34,8 @@ builder.Services.AddOptions<JwtOptions>()
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
