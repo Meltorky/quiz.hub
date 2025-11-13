@@ -1,4 +1,7 @@
 
+using quiz.hub.Application.Interfaces.IServices.Authentication;
+using quiz.hub.Application.Services.Authentication;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // database connection service
@@ -27,6 +30,10 @@ builder.Services.AddOptions<JwtOptions>()
     .Bind(builder.Configuration.GetSection("JWT"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
+// register DI of services
+builder.Services.AddScoped<IAuthService,AuthService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 

@@ -40,9 +40,12 @@ namespace quiz.hub.Application.Services.Authentication
                 UserName = isUserNameDuplicate ? userName.Append('0').ToString() : userName.ToString(),
             };
 
-            var newUserRegistrationResult = await _userManager.CreateAsync(newUser, dto.Password);
-            if (!newUserRegistrationResult.Succeeded)
-                throw new OperationFailedException("Registerion Operation Falied !!");
+            var result = await _userManager.CreateAsync(newUser, dto.Password);
+            if (!result.Succeeded) 
+            {
+                var errors = string.Join(" & ",result.Errors.Select(e => e.Description));
+                throw new OperationFailedException(errors);
+            }
 
             var asignRoleResult = await _userManager.AddToRoleAsync(newUser, RoleEnums.User.ToString());
             if (!asignRoleResult.Succeeded)
