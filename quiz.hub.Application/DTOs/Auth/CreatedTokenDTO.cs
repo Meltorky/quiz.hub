@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace quiz.hub.Application.DTOs.Auth
 {
-    public class CreateTokenDTO
+    public class CreatedTokenDTO
     {
         public string Token { get; set; } = string.Empty;
         public DateTime ExpiresOn { get; set; }

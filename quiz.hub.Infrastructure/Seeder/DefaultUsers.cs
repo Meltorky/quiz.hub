@@ -16,27 +16,14 @@ namespace quiz.hub.Infrastructure.Seeder
                 UserName = "@superadmin",
             };
 
-            var existingUser = await userManager.FindByEmailAsync(superAdmin.Email);
-
-            if (existingUser is null)
-            {
-                string password = "Ab123456+";
-                var isCreated = await userManager.CreateAsync(superAdmin, password);
-                if(isCreated.Succeeded)
-                    await userManager.AddToRolesAsync(superAdmin, new List<string>
-                    {
-                        RoleEnums.SuperAdmin.ToString(),
-                        RoleEnums.Admin.ToString()
-                    });
-            }
-            else 
-            {
-                if(!await userManager.IsInRoleAsync(existingUser,RoleEnums.SuperAdmin.ToString()))
-                    await userManager.AddToRoleAsync(existingUser, RoleEnums.SuperAdmin.ToString());
+            if (await userManager.FindByEmailAsync(superAdmin.Email) is null)
+                await userManager.CreateAsync(superAdmin, "Ab123456+");           
+         
+            if(!await userManager.IsInRoleAsync(superAdmin,RoleEnums.SuperAdmin.ToString()))
+                await userManager.AddToRoleAsync(superAdmin, RoleEnums.SuperAdmin.ToString());
                
-                if(!await userManager.IsInRoleAsync(existingUser, RoleEnums.Admin.ToString()))
-                    await userManager.AddToRoleAsync(existingUser, RoleEnums.Admin.ToString());
-            }
+            if(!await userManager.IsInRoleAsync(superAdmin, RoleEnums.Admin.ToString()))
+                await userManager.AddToRoleAsync(superAdmin, RoleEnums.Admin.ToString());
         } 
     }
 }

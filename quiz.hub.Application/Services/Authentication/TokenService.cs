@@ -2,14 +2,14 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using quiz.hub.Application.DTOs.Auth;
-using quiz.hub.Application.Interfaces.IServices;
+using quiz.hub.Application.Interfaces.IServices.Authentication;
 using quiz.hub.Application.Options;
 using quiz.hub.Domain.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace quiz.hub.Application.Services
+namespace quiz.hub.Application.Services.Authentication
 {
     public class TokenService : ITokenService
     {
@@ -22,7 +22,7 @@ namespace quiz.hub.Application.Services
             _jwtOptions = jwt.Value;
         }
 
-        public async Task<CreateTokenDTO> CreateTokenAsync(ApplicationUser user)
+        public async Task<CreatedTokenDTO> CreateTokenAsync(ApplicationUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user); 
             var roles = await _userManager.GetRolesAsync(user);
@@ -33,7 +33,7 @@ namespace quiz.hub.Application.Services
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email!),
                 new Claim(JwtRegisteredClaimNames.UniqueName,user.UserName!)
             }
             .Union(userClaims)
@@ -52,7 +52,7 @@ namespace quiz.hub.Application.Services
             var createdToken = tokenHandler.CreateToken(descriptor);
             var token = tokenHandler.WriteToken(createdToken);
 
-            return new CreateTokenDTO 
+            return new CreatedTokenDTO 
             { 
                 Token = token,
                 ExpiresOn = createdToken.ValidTo

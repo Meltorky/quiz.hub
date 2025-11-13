@@ -10,7 +10,7 @@ namespace quiz.hub.Application.DTOs.Auth
     public class RegisterDTO
     {
         [Required]
-        [MaxLength(250)]
+        [MaxLength(100)]
         public string FullName { get; set; } = string.Empty;
 
 

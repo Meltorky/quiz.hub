@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace quiz.hub.Application.Interfaces.IServices
+namespace quiz.hub.Application.Interfaces.IServices.Authentication
 {
     public interface ITokenService
     {
-        Task<CreateTokenDTO> CreateTokenAsync(ApplicationUser user);
+        Task<CreatedTokenDTO> CreateTokenAsync(ApplicationUser user);
 
     }
 }

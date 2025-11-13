@@ -1,11 +1,9 @@
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // database connection service
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")));
-
 
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o=> 
@@ -17,14 +15,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o=>
     o.Password.RequireUppercase = true;
 }).AddEntityFrameworkStores<AppDbContext>();
 
-
 // add JWT validation extention
 builder.Services.AddJwtAuthentication();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 // Bind JwtOptions once and validate it
 builder.Services.AddOptions<JwtOptions>()
@@ -45,8 +41,9 @@ if (app.Environment.IsDevelopment())
 // use global exception handler middleware
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
-
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
