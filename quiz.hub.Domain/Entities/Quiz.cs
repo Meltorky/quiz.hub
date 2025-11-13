@@ -28,7 +28,8 @@ namespace quiz.hub.Domain.Entities
         [Range(1,360)] // max of 6 hours
         public double DurationInMinutes { get; set; }
         public bool IsActive => DateTime.UtcNow < PublishedAt.AddMinutes(DurationInMinutes);
-
+        public double SuccessRate { get; set; } 
+        public int QuestionsNumber { get; set; } 
 
         // nav props
         public Host Host { get; set; } = null!;

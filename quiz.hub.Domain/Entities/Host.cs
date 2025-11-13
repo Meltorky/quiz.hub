@@ -14,10 +14,8 @@ namespace quiz.hub.Domain.Entities
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-
         [ForeignKey(nameof(ApplicationUser))]
         public string UserId { get; set; } = default!;
-
 
         // nav props
         public ApplicationUser ApplicationUser { get; set; } = null!;   // EF-friendly choice
