@@ -1,6 +1,8 @@
 
+using quiz.hub.API.ActionFilters;
 using quiz.hub.Application.Interfaces.IServices.Authentication;
 using quiz.hub.Application.Services.Authentication;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,15 +23,58 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o=>
 // add JWT validation extention
 builder.Services.AddJwtAuthentication();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => 
+{
+    options.Filters.Add<ExecutionTimeFilter>(); // filter to log every request execution time  
+});
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // configure swagger to use XML comments
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+    c.EnableAnnotations();
+
+
+    c.SwaggerDoc("v1", new() { Title = "after.senatone API", Version = "v1" });
+
+    // Add JWT bearer auth to Swagger
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter JWT token in the format: Bearer {your token}"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 // Bind JwtOptions once and validate it
 builder.Services.AddOptions<JwtOptions>()
     .Bind(builder.Configuration.GetSection("JWT"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
+// register DI of ActionFilter
+builder.Services.AddScoped<ExecutionTimeFilter>();
 
 // register DI of services
 builder.Services.AddScoped<IAuthService,AuthService>();

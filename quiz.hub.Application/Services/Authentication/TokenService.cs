@@ -33,8 +33,10 @@ namespace quiz.hub.Application.Services.Authentication
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email, user.Email!),
-                new Claim(JwtRegisteredClaimNames.UniqueName,user.UserName!)
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id), // Subject (the user's unique identifier)
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // Unique token ID
+                new Claim(JwtRegisteredClaimNames.UniqueName,user.UserName!),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             }
             .Union(userClaims)
             .Union(roleClaims);
