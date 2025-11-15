@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\quiz.hub.Application\quiz.hub.Application.csproj" />
     <ProjectReference Include="..\quiz.hub.Domain\quiz.hub.Domain.csproj" />
   </ItemGroup>
 
