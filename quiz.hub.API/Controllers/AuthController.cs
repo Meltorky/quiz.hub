@@ -35,12 +35,13 @@ namespace quiz.hub.API.Controllers
         /// Register
         /// </summary>
         /// <param name="dto">Registration request data</param>
+        /// <param name="token">Cancellation Token</param>
         /// <response code="200">User creation result with token</response>
         /// <response code="400">Bad Request</response>
         [HttpPost("register")]
-        public async Task<ActionResult<AuthenticatedUserDTO>> register([FromBody] RegisterDTO dto)
+        public async Task<ActionResult<AuthenticatedUserDTO>> register([FromBody] RegisterDTO dto, CancellationToken token)
         {
-            var result = await _authService.Register(dto);
+            var result = await _authService.Register(dto,token);
             return Ok(result);
         }
     }

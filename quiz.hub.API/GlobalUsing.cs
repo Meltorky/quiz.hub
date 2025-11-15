@@ -5,3 +5,4 @@ global using quiz.hub.API.Middlewares;
 global using quiz.hub.Application.Options;
 global using quiz.hub.Domain.Identity;
 global using quiz.hub.Infrastructure.Data;
+global using quiz.hub.Application.Common.Exceptions;

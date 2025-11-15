@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using quiz.hub.Application.Common.Exceptions;
 using quiz.hub.Application.DTOs.Auth;
+using quiz.hub.Application.Interfaces.IRepositories.Comman;
 using quiz.hub.Application.Interfaces.IServices.Authentication;
+using quiz.hub.Domain.Entities;
 using quiz.hub.Domain.Enums;
 using quiz.hub.Domain.Identity;
 using System.Net.Mail;
@@ -13,14 +15,16 @@ namespace quiz.hub.Application.Services.Authentication
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITokenService _tokenService;
-        public AuthService(UserManager<ApplicationUser> userManager, ITokenService tokenService)
+        private readonly IUnitOfWork _unitOfWork;
+        public AuthService(UserManager<ApplicationUser> userManager, ITokenService tokenService, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _unitOfWork = unitOfWork;
         }
 
 
-        public async Task<AuthenticatedUserDTO> Register(RegisterDTO dto)
+        public async Task<AuthenticatedUserDTO> Register(RegisterDTO dto , CancellationToken token)
         {
             if (await _userManager.FindByEmailAsync(dto.Email) is not null)
                 throw new DuplicateEmailException($"Email '{dto.Email}' is already registered.");
@@ -52,6 +56,9 @@ namespace quiz.hub.Application.Services.Authentication
                 throw new OperationFailedException("Asign to Role Operation Falied !!");
 
             var createdTokenDTO = await _tokenService.CreateTokenAsync(newUser);
+
+            await _unitOfWork.Hosts.AddAsync(new Host { UserId = newUser.Id }, token);
+            await _unitOfWork.Candidates.AddAsync(new Candidate { UserId = newUser.Id }, token);
 
             return new AuthenticatedUserDTO
             {

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace quiz.hub.Domain.Entities
 {
@@ -27,7 +22,7 @@ namespace quiz.hub.Domain.Entities
 
         [Range(1,360)] // max of 6 hours
         public double DurationInMinutes { get; set; }
-        public bool IsActive => DateTime.UtcNow < PublishedAt.AddMinutes(DurationInMinutes);
+        public bool IsActive { get; set; }
         public double SuccessRate { get; set; } 
         public int QuestionsNumber { get; set; } 
 

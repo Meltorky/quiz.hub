@@ -9,7 +9,7 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
     public class BaseRepository<T>(AppDbContext _context) : Application.Interfaces.IRepositories.Comman.IBaseRepository<T> where T : class
     {
 
-        public async Task<T?> FindById(int Id, CancellationToken token, params Func<IQueryable<T>, IQueryable<T>>[] includes)
+        public async Task<T?> FindById(Guid Id, CancellationToken token, params Func<IQueryable<T>, IQueryable<T>>[] includes)
         {
             IQueryable<T> query = _context.Set<T>();
 
@@ -18,7 +18,7 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
                     query = include(query);
 
             return await query
-                .SingleOrDefaultAsync(e => EF.Property<int>(e, "Id") == Id, token);
+                .SingleOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == Id, token);
         }
 
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace quiz.hub.Application
+namespace quiz.hub.Application.Attributes
 {
     public class ImageValidationAttribute : ValidationAttribute
     {

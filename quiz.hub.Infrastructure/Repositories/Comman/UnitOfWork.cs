@@ -7,11 +7,11 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
-        public IAnswerRepo AnswerRepo { get; private set; }
-        public ICandidateRepo CandidateRepo { get; private set; }
-        public IHostRepo HostRepo { get; private set; }
-        public IQuizRepo QuizRepo { get; private set; }
-        public IQuestionRepo QuestionRepo { get; private set; }
+        public IAnswerRepo Answers { get; private set; }
+        public ICandidateRepo Candidates { get; private set; }
+        public IHostRepo Hosts { get; private set; }
+        public IQuizRepo Quizzes { get; private set; }
+        public IQuestionRepo Questions { get; private set; }
 
         public UnitOfWork(
             AppDbContext context, 
@@ -22,11 +22,11 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
             IQuestionRepo questionRepo)
         {
             _context = context;
-            AnswerRepo = answerRepo;
-            CandidateRepo = candidateRepo;
-            HostRepo = hostRepo;
-            QuizRepo = quizRepo;
-            QuestionRepo = questionRepo;
+            Answers = answerRepo;
+            Candidates = candidateRepo;
+            Hosts = hostRepo;
+            Quizzes = quizRepo;
+            Questions = questionRepo;
         }
 
         public async Task<int> SaveChangesAsync(CancellationToken token)
