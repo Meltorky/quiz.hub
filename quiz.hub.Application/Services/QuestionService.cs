@@ -1,4 +1,5 @@
-﻿using quiz.hub.Application.Common.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
+using quiz.hub.Application.Common.Exceptions;
 using quiz.hub.Application.DTOs.QuestionDTOs;
 using quiz.hub.Application.Helpers;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
@@ -12,6 +13,56 @@ namespace quiz.hub.Application.Services
         public QuestionService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        // create question
+        public async Task<QuestionDTO> CreateQuestion(CreateQuestionDTO dto , CancellationToken token)
+        {
+            if (await _unitOfWork.Quizzes.FindById(dto.QuizId, token) is null)
+                throw new NotFoundException($"Quiz with ID '{dto.QuizId}' was not found.");
+            
+            byte[]? image = null;
+            if (dto.Image is not null)
+                image = await dto.Image.HandleImage();
+
+            var question = await _unitOfWork.Questions.AddAsync(dto.ToQuestionEntity(image), token);
+
+            return question.ToQuestionDTO();
+        }
+
+        // edit question
+        public async Task<QuestionDTO> CreateQuestion(EditQuestionDTO dto, CancellationToken token)
+        {
+            var question = await _unitOfWork.Questions
+                .FindUnique(q => q.Id == dto.QuestionId && q.QuizId == dto.QuizId, token);
+
+            if (question is null)
+                throw new NotFoundException("Invalid Quiz Id or Question ID !!");
+
+            question.Score = dto.Score;
+            question.Title = dto.Title;
+
+            if (dto.Image is not null)
+                question.Image = await dto.Image.HandleImage();
+
+            _unitOfWork.Questions.Edit(question);
+
+            return question.ToQuestionDTO();
+        }
+
+
+        // remove question
+        public async Task RemoveQuestionWithAnsers(Guid questionId, CancellationToken token)
+        {
+            var question = await _unitOfWork.Questions.FindById(questionId, token, q => q.Include(q => q.Answers));
+
+            if (question is null)
+                throw new NotFoundException($"Question with ID: '{questionId}' doesn't exist !!");
+
+            var answers = question.Answers.ToList();
+
+            await _unitOfWork.Answers.DeleteRangeAsync(question.Answers, token);
+            await _unitOfWork.Questions.DeleteAsync(question, token);
         }
 
         // create question
@@ -44,7 +95,7 @@ namespace quiz.hub.Application.Services
 
 
         // edit question
-        public async Task<QuestionWithAnswersDTO> EditQuetion(EditQuestionWithAnswersDTO dto, CancellationToken token)
+        public async Task<QuestionWithAnswersDTO> EditQuetionWithAnsers(EditQuestionWithAnswersDTO dto, CancellationToken token)
         {
             var question = await _unitOfWork.Questions
                 .FindUnique(q => q.Id == dto.questionDTO.QuestionId && q.QuizId == dto.questionDTO.QuizId, token);

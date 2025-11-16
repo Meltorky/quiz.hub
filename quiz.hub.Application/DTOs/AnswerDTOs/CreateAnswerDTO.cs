@@ -10,10 +10,13 @@ namespace quiz.hub.Application.DTOs.AnswerDTOs
     public class CreateAnswerDTO
     {
         [Required]
+        public Guid QuestionId { get; set; }
+
+        [Required]
         [MinLength(1)]
         public string Text { get; set; } = string.Empty;
 
         [Required]
-        public bool IsTrue { get; set; }
+        public bool IsCorrect { get; set; }
     }
 }

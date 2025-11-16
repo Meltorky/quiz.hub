@@ -10,25 +10,33 @@ namespace quiz.hub.Application.Mappers
 {
     public static class AnswerMappers
     {
-        //public static List<Answer> ToAnswerEntites(this List<CreateAnswerDTO> dtos, Guid questionId)
-        //{
-        //    List<Answer> answers = new List<Answer>();
-        //    foreach (var answerDTO in dtos)
-        //        answers.Add(new Answer
-        //        {
-        //            Text = answerDTO.Text,
-        //            IsCorrect = answerDTO.IsTrue,
-        //            QuestionId = questionId,
-        //        });
-        //    return answers;
-        //}
+        public static Answer ToAnswer(this CreateAnswerDTO dto)
+        {
+            return new Answer 
+            {
+                QuestionId = dto.QuestionId,
+                Text = dto.Text,
+                IsCorrect = dto.IsCorrect,
+            };
+        }
+
+        public static AnswerDTO ToAnswerDTO(this Answer answer ) 
+        {
+            return new AnswerDTO 
+            {
+                Id = answer.Id,            
+                QuestionId = answer.QuestionId,
+                Text = answer.Text,
+                IsCorrect = answer.IsCorrect
+            };
+        }
 
         public static List<Answer> ToAnswerEntities(this List<CreateAnswerDTO> dtos, Guid questionId)
         {
             return dtos.Select(dto => new Answer
             {
                 Text = dto.Text,
-                IsCorrect = dto.IsTrue,
+                IsCorrect = dto.IsCorrect,
                 QuestionId = questionId
             }).ToList();
         }

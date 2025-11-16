@@ -11,6 +11,19 @@ namespace quiz.hub.Application.Mappers
 {
     public static class QuestionMappers
     {
+        public static QuestionDTO ToQuestionDTO(this Question question) 
+        {
+            return new QuestionDTO
+            {
+                QuestionId = question.Id,
+                QuizId = question.QuizId,
+                Image = question.Image,
+                Order = question.Order,
+                Score = question.Score,
+                Title = question.Title
+            };
+        }
+
         public static Question ToQuestionEntity(this CreateQuestionDTO dto, byte[]? image)
         {
             return new Question
