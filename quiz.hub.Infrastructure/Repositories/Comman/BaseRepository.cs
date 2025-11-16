@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace quiz.hub.Infrastructure.Repositories.Comman
 {
-    public class BaseRepository<T>(AppDbContext _context) : Application.Interfaces.IRepositories.Comman.IBaseRepository<T> where T : class
+    public class BaseRepository<T>(AppDbContext _context) : IBaseRepository<T> where T : class
     {
 
         public async Task<T?> FindById(Guid Id, CancellationToken token, params Func<IQueryable<T>, IQueryable<T>>[] includes)
@@ -35,7 +35,7 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
         }
 
 
-        public async Task<IEnumerable<T>> GetAll(QueryFilters<T> filters, CancellationToken token)
+        public async Task<List<T>> GetAll(QueryFilters<T> filters, CancellationToken token)
         {
             IQueryable<T> query = _context.Set<T>();
 
@@ -65,7 +65,6 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
         public async Task<T> AddAsync(T entity, CancellationToken token)
         {
             await _context.Set<T>().AddAsync(entity, token);
-            await _context.SaveChangesAsync(token);
             return entity;
         }
 
@@ -73,14 +72,18 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
         public async Task AddRangeAsync(ICollection<T> entities, CancellationToken token)
         {
             await _context.Set<T>().AddRangeAsync(entities, token);
-            await _context.SaveChangesAsync(token);
         }
 
 
-        public async Task<bool> EditAsync(T entity, CancellationToken token)
+        public T Edit(T entity)
         {
             _context.Set<T>().Update(entity);
-            return await _context.SaveChangesAsync(token) > 0;
+            return entity;
+        }
+
+        public void  EditRange(ICollection<T> entities)
+        {
+             _context.Set<T>().UpdateRange(entities);
         }
 
 

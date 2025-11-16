@@ -10,5 +10,6 @@ namespace quiz.hub.Application.Interfaces.IRepositories
 {
     public interface IAnswerRepo : IBaseRepository<Answer> 
     {
+        Task<List<Answer>> GetRange(Guid questionId, CancellationToken token);
     }
 }

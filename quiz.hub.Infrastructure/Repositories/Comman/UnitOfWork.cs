@@ -38,7 +38,5 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
         {
             _context.Dispose();
         }
-
-
     }
 }
