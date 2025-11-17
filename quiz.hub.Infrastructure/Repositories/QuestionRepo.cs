@@ -19,6 +19,5 @@ namespace quiz.hub.Infrastructure.Repositories
         {
             _context = context;
         }
-
     }
 }

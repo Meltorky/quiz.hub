@@ -75,15 +75,17 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
         }
 
 
-        public T Edit(T entity)
+        public async Task<T> Edit(T entity, CancellationToken token)
         {
             _context.Set<T>().Update(entity);
+            await _context.SaveChangesAsync(token);
             return entity;
         }
 
-        public void  EditRange(ICollection<T> entities)
+        public async Task  EditRange(ICollection<T> entities, CancellationToken token)
         {
              _context.Set<T>().UpdateRange(entities);
+            await _context.SaveChangesAsync(token);
         }
 
 

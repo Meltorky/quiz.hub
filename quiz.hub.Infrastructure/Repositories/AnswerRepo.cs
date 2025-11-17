@@ -20,6 +20,11 @@ namespace quiz.hub.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<int> NumberOfTrueAnswers(Guid questionId, CancellationToken token) 
+        {
+            return await _context.Answers.CountAsync(a => a.QuestionId == questionId && a.IsCorrect == true);
+        }
+
         public async Task<List<Answer>> GetRange(Guid questionId, CancellationToken token) 
         {
             return await _context.Answers.Where(a => a.QuestionId == questionId).ToListAsync();

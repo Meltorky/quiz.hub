@@ -15,55 +15,6 @@ namespace quiz.hub.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        // create question
-        public async Task<QuestionDTO> CreateQuestion(CreateQuestionDTO dto , CancellationToken token)
-        {
-            if (await _unitOfWork.Quizzes.FindById(dto.QuizId, token) is null)
-                throw new NotFoundException($"Quiz with ID '{dto.QuizId}' was not found.");
-            
-            byte[]? image = null;
-            if (dto.Image is not null)
-                image = await dto.Image.HandleImage();
-
-            var question = await _unitOfWork.Questions.AddAsync(dto.ToQuestionEntity(image), token);
-
-            return question.ToQuestionDTO();
-        }
-
-        // edit question
-        public async Task<QuestionDTO> CreateQuestion(EditQuestionDTO dto, CancellationToken token)
-        {
-            var question = await _unitOfWork.Questions
-                .FindUnique(q => q.Id == dto.QuestionId && q.QuizId == dto.QuizId, token);
-
-            if (question is null)
-                throw new NotFoundException("Invalid Quiz Id or Question ID !!");
-
-            question.Score = dto.Score;
-            question.Title = dto.Title;
-
-            if (dto.Image is not null)
-                question.Image = await dto.Image.HandleImage();
-
-            _unitOfWork.Questions.Edit(question);
-
-            return question.ToQuestionDTO();
-        }
-
-
-        // remove question
-        public async Task RemoveQuestionWithAnsers(Guid questionId, CancellationToken token)
-        {
-            var question = await _unitOfWork.Questions.FindById(questionId, token, q => q.Include(q => q.Answers));
-
-            if (question is null)
-                throw new NotFoundException($"Question with ID: '{questionId}' doesn't exist !!");
-
-            var answers = question.Answers.ToList();
-
-            await _unitOfWork.Answers.DeleteRangeAsync(question.Answers, token);
-            await _unitOfWork.Questions.DeleteAsync(question, token);
-        }
 
         // create question
         public async Task<QuestionWithAnswersDTO> CreatQuestionWithAnswers(CreateQuestionDTO dto, CancellationToken token)
@@ -83,6 +34,10 @@ namespace quiz.hub.Application.Services
             // create answer entities
             var answerEntities = dto.answerDTOs.ToAnswerEntities(createdQuestion.Id);
 
+            // Validate at least 1 answer should be correct
+            if (!dto.answerDTOs.Any(a => a.IsCorrect))
+                throw new ValidationException("At least one answer must be marked as correct.");
+
             // Add answers (still no commit)
             await _unitOfWork.Answers.AddRangeAsync(answerEntities, token);
 
@@ -95,36 +50,97 @@ namespace quiz.hub.Application.Services
 
 
         // edit question
-        public async Task<QuestionWithAnswersDTO> EditQuetionWithAnsers(EditQuestionWithAnswersDTO dto, CancellationToken token)
+        public async Task<QuestionDTO> EditQuestion(EditQuestionDTO dto, CancellationToken token)
         {
-            var question = await _unitOfWork.Questions
-                .FindUnique(q => q.Id == dto.questionDTO.QuestionId && q.QuizId == dto.questionDTO.QuizId, token);
+            var question = await _unitOfWork.Questions.FindById(dto.QuestionId, token);
 
             if (question is null)
-                throw new NotFoundException("Question does not exist in this quiz.");
+                throw new NotFoundException("Invalid Question ID !!");
 
-            question.Score = dto.questionDTO.Score;
-            question.Title = dto.questionDTO.Title;
+            question.Score = dto.Score;
+            question.Title = dto.Title;
 
-            if (dto.questionDTO.Image is not null)
-                question.Image = await dto.questionDTO.Image.HandleImage();
+            if (dto.Image is not null)
+                question.Image = await dto.Image.HandleImage();
 
-            var existingAnswers = await _unitOfWork.Answers.GetRange(question.Id, token);
+            await _unitOfWork.Questions.Edit(question, token);
 
-            foreach (var dtoAnswer in dto.answerDTOs)
-            {
-                var answer = existingAnswers.Single(a => a.Id == dtoAnswer.Id);
-
-                answer.Text = dtoAnswer.Text;
-                answer.IsCorrect = dtoAnswer.IsCorrect;
-            }
-
-            _unitOfWork.Questions.Edit(question);
-            _unitOfWork.Answers.EditRange(existingAnswers);
-
-            await _unitOfWork.SaveChangesAsync(token);
-
-            return question.ToDTO(existingAnswers);
+            return question.ToQuestionDTO();
         }
+
+
+        // remove question
+        public async Task RemoveQuestionWithAnsers(Guid questionId, CancellationToken token)
+        {
+            var question = await _unitOfWork.Questions.FindById(questionId, token, q => q.Include(q => q.Answers))
+                ?? throw new NotFoundException($"Question with ID: '{questionId}' doesn't exist !!");
+
+            await _unitOfWork.Answers.DeleteRangeAsync(question.Answers, token);
+            await _unitOfWork.Questions.DeleteAsync(question, token);
+        }
+
+
+
+        //// create question
+        //public async Task<QuestionDTO> CreateQuestion(CreateQuestionDTO dto, CancellationToken token)
+        //{
+        //    if (await _unitOfWork.Quizzes.FindById(dto.QuizId, token) is null)
+        //        throw new NotFoundException($"Quiz with ID '{dto.QuizId}' was not found.");
+
+        //    byte[]? image = null;
+        //    if (dto.Image is not null)
+        //        image = await dto.Image.HandleImage();
+
+        //    var question = await _unitOfWork.Questions.AddAsync(dto.ToQuestionEntity(image), token);
+
+        //    return question.ToQuestionDTO();
+        //}
+
+
+        //// edit question
+        //public async Task<QuestionWithAnswersDTO> EditQuetionWithAnsers(EditQuestionWithAnswersDTO dto, CancellationToken token)
+        //{
+        //    var question = await _unitOfWork.Questions
+        //        .FindUnique(q => q.Id == dto.questionDTO.QuestionId && q.QuizId == dto.questionDTO.QuizId, token);
+
+        //    if (question is null)
+        //        throw new NotFoundException("Question does not exist in this quiz.");
+
+        //    question.Score = dto.questionDTO.Score;
+        //    question.Title = dto.questionDTO.Title;
+
+        //    if (dto.questionDTO.Image is not null)
+        //        question.Image = await dto.questionDTO.Image.HandleImage();
+
+        //    var existingAnswers = await _unitOfWork.Answers.GetRange(question.Id, token);
+
+        //    foreach (var dtoAnswer in dto.answerDTOs)
+        //    {
+        //        var answer = existingAnswers.Single(a => a.Id == dtoAnswer.Id);
+
+        //        answer.Text = dtoAnswer.Text;
+        //        answer.IsCorrect = dtoAnswer.IsCorrect;
+        //    }
+
+        //    var newAnswersIds = dto.answerDTOs.Select(a => a.Id).Except(existingAnswers.Select(a => a.Id)).ToList();
+
+        //    var newAnswerEntities = dto.answerDTOs
+        //        .Where(x => newAnswersIds.Contains(x.Id))
+        //        .ToList()
+        //        .ToAnswerEntities(dto.questionDTO.QuestionId);
+
+        //    await _unitOfWork.Answers.AddRangeAsync(newAnswerEntities, token);
+
+        //    if (!dto.answerDTOs.Any(a => a.IsCorrect))
+        //        throw new ValidationException("At least one answer must be marked as correct.");
+
+        //    await _unitOfWork.Questions.Edit(question,token);
+        //    await _unitOfWork.Answers.EditRange(existingAnswers, token);
+
+        //    await _unitOfWork.SaveChangesAsync(token);
+
+        //    return question.ToDTO(existingAnswers);
+        //}
+
     }
 }

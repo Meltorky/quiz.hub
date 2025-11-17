@@ -10,10 +10,10 @@ namespace quiz.hub.Application.Interfaces.IRepositories.Comman
         Task<List<T>> GetAll(QueryFilters<T> filters, CancellationToken token);
         Task<T> AddAsync(T entity, CancellationToken token);
         Task AddRangeAsync(ICollection<T> entities, CancellationToken token);
+        Task<T> Edit(T entity, CancellationToken token);
+        Task EditRange(ICollection<T> entities, CancellationToken token);
         Task<bool> DeleteAsync(T entity, CancellationToken token);
         Task DeleteRangeAsync(ICollection<T> entities, CancellationToken token);
         Task<bool> IsExistAsync(Expression<Func<T, bool>> criteria, CancellationToken token);
-        T Edit(T entity);
-        void EditRange(ICollection<T> entities);
     }
 }
