@@ -19,24 +19,22 @@ namespace quiz.hub.Application.Services
         // create question
         public async Task<QuestionWithAnswersDTO> CreatQuestionWithAnswers(CreateQuestionDTO dto, CancellationToken token)
         {
+            // Validate at least 1 answer should be correct
+            if (!dto.answerDTOs.Any(a => a.IsCorrect))
+                throw new ValidationException("At least one answer must be marked as correct.");
+
             // Validate quiz exists
             if (await _unitOfWork.Quizzes.FindById(dto.QuizId, token) is null)
                 throw new NotFoundException($"Quiz with ID '{dto.QuizId}' was not found.");
 
             // Handle image if provided
-            byte[]? image = null;
-            if (dto.Image is not null)
-                image = await dto.Image.HandleImage();
+            byte[]? image = dto.Image is not null ? await dto.Image.HandleImage() : null;
 
             // Add question (still no commit)
             var createdQuestion = await _unitOfWork.Questions.AddAsync(dto.ToQuestionEntity(image), token);
 
             // create answer entities
             var answerEntities = dto.answerDTOs.ToAnswerEntities(createdQuestion.Id);
-
-            // Validate at least 1 answer should be correct
-            if (!dto.answerDTOs.Any(a => a.IsCorrect))
-                throw new ValidationException("At least one answer must be marked as correct.");
 
             // Add answers (still no commit)
             await _unitOfWork.Answers.AddRangeAsync(answerEntities, token);

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using quiz.hub.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using quiz.hub.Infrastructure.Data;
 namespace quiz.hub.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251118134529_edit-quiz-entity")]
+    partial class editquizentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,7 +178,7 @@ namespace quiz.hub.Infrastructure.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("Answers", (string)null);
+                    b.ToTable("Answers");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.Candidate", b =>
@@ -198,7 +201,7 @@ namespace quiz.hub.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Candidates", (string)null);
+                    b.ToTable("Candidates");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.CandidateAnswer", b =>
@@ -229,7 +232,7 @@ namespace quiz.hub.Infrastructure.Migrations
 
                     b.HasIndex("QuizId", "CandidateId");
 
-                    b.ToTable("CandidateAnswers", (string)null);
+                    b.ToTable("CandidateAnswers");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.Host", b =>
@@ -246,7 +249,7 @@ namespace quiz.hub.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Hosts", (string)null);
+                    b.ToTable("Hosts");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.Question", b =>
@@ -275,7 +278,7 @@ namespace quiz.hub.Infrastructure.Migrations
 
                     b.HasIndex("QuizId");
 
-                    b.ToTable("Questions", (string)null);
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.Quiz", b =>
@@ -324,7 +327,7 @@ namespace quiz.hub.Infrastructure.Migrations
 
                     b.HasIndex("HostId");
 
-                    b.ToTable("Quizzes", (string)null);
+                    b.ToTable("Quizzes");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.QuizCandidate", b =>
@@ -345,7 +348,7 @@ namespace quiz.hub.Infrastructure.Migrations
 
                     b.HasIndex("CandidateId");
 
-                    b.ToTable("QuizCandidates", (string)null);
+                    b.ToTable("QuizCandidates");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Identity.ApplicationUser", b =>

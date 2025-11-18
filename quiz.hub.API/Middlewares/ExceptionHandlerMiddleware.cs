@@ -44,6 +44,10 @@ namespace quiz.hub.API.Middlewares
             {
                 await WriteProblemAsync(context, ex, StatusCodes.Status400BadRequest, "Duplicate Email", LogLevel.Information);
             }
+            catch (ForbiddenAccessException ex)
+            {
+                await WriteProblemAsync(context, ex, StatusCodes.Status400BadRequest, "Forbidden Access", LogLevel.Error);
+            }
             catch (Exception ex)
             {
                 await WriteProblemAsync(context, ex, StatusCodes.Status500InternalServerError, "Internal server error", LogLevel.Error);

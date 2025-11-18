@@ -4,17 +4,16 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace quiz.hub.Application.DTOs.QuizDTOs
 {
-    public class CreateQuizDTO
+    public class EditQuizDTO
     {
-        [Required]
-        [MinLength(1)]
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
+        public Guid Id { get; set; }
+        public Guid HostId { get; set; }
         public double DurationInMinutes { get; set; }
+        public string Title { get; set; } = default!;
+        public string? Description { get; set; }
     }
 }

@@ -57,9 +57,6 @@ namespace quiz.hub.Application.Services.Authentication
 
             var createdTokenDTO = await _tokenService.CreateTokenAsync(newUser);
 
-            await _unitOfWork.Hosts.AddAsync(new Host { UserId = newUser.Id }, token);
-            await _unitOfWork.Candidates.AddAsync(new Candidate { UserId = newUser.Id }, token);
-
             return new AuthenticatedUserDTO
             {
                 CreatedToken = createdTokenDTO,

@@ -18,13 +18,14 @@ namespace quiz.hub.Domain.Entities
         public string? Description { get; set; }       
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime PublishedAt { get; set; }
-        public bool IsPublished => PublishedAt < DateTime.UtcNow;
+        public bool IsPublished { get; set; }
 
         [Range(1,360)] // max of 6 hours
         public double DurationInMinutes { get; set; }
         public bool IsActive { get; set; }
-        public double SuccessRate { get; set; } 
-        public int QuestionsNumber { get; set; } 
+        public double AverageScore { get; set; } 
+        public int QuestionsNumber => Questions.Count;
+        public double TotalScore => Questions.Select(x => x.Score).Sum();
 
         // nav props
         public Host Host { get; set; } = null!;
