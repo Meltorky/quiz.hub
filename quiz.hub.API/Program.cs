@@ -91,6 +91,7 @@ builder.Services.AddScoped<IHostRepo, HostRepo>();
 builder.Services.AddScoped<IQuizRepo, QuizRepo>();
 builder.Services.AddScoped<ICandidateRepo, CandidateRepo>();
 builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
+builder.Services.AddScoped<IQuizCandidatesRepo, QuizCandidatesRepo>();
 
 
 var app = builder.Build();

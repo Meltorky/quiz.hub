@@ -24,8 +24,8 @@ namespace quiz.hub.Application.Services
                 throw new ValidationException("At least one answer must be marked as correct.");
 
             // Validate quiz exists
-            if (await _unitOfWork.Quizzes.FindById(dto.QuizId, token) is null)
-                throw new NotFoundException($"Quiz with ID '{dto.QuizId}' was not found.");
+            var quiz = await _unitOfWork.Quizzes.FindById(dto.QuizId, token)
+                ?? throw new NotFoundException($"Quiz with ID '{dto.QuizId}' was not found.");
 
             // Handle image if provided
             byte[]? image = dto.Image is not null ? await dto.Image.HandleImage() : null;
@@ -39,6 +39,9 @@ namespace quiz.hub.Application.Services
             // Add answers (still no commit)
             await _unitOfWork.Answers.AddRangeAsync(answerEntities, token);
 
+            // add question score to quiz
+            quiz.TotalScore += createdQuestion.Score;
+
             // commit all
             await _unitOfWork.SaveChangesAsync(token);
 
@@ -50,10 +53,14 @@ namespace quiz.hub.Application.Services
         // edit question
         public async Task<QuestionDTO> EditQuestion(EditQuestionDTO dto, CancellationToken token)
         {
-            var question = await _unitOfWork.Questions.FindById(dto.QuestionId, token);
+            var question = await _unitOfWork.Questions.FindById(dto.QuestionId, token)
+                ?? throw new NotFoundException("Invalid Question ID !!"); ;
 
-            if (question is null)
-                throw new NotFoundException("Invalid Question ID !!");
+            // Validate quiz exists
+            var quiz = await _unitOfWork.Quizzes.FindById(dto.QuizId, token)
+                ?? throw new NotFoundException($"Quiz with ID '{dto.QuizId}' was not found.");
+
+            quiz.TotalScore = quiz.TotalScore - question.Score + dto.Score;
 
             question.Score = dto.Score;
             question.Title = dto.Title;
@@ -62,6 +69,7 @@ namespace quiz.hub.Application.Services
                 question.Image = await dto.Image.HandleImage();
 
             await _unitOfWork.Questions.Edit(question, token);
+            await _unitOfWork.SaveChangesAsync(token);
 
             return question.ToQuestionDTO();
         }
@@ -73,8 +81,14 @@ namespace quiz.hub.Application.Services
             var question = await _unitOfWork.Questions.FindById(questionId, token, q => q.Include(q => q.Answers))
                 ?? throw new NotFoundException($"Question with ID: '{questionId}' doesn't exist !!");
 
+            var quiz = await _unitOfWork.Quizzes.FindById(question.QuizId, token)
+                ?? throw new NotFoundException($"Quiz with ID '{question.QuizId}' was not found.");
+
+            quiz.TotalScore -= question.Score;
+
             await _unitOfWork.Answers.DeleteRangeAsync(question.Answers, token);
             await _unitOfWork.Questions.DeleteAsync(question, token);
+            await _unitOfWork.SaveChangesAsync(token);
         }
 
 

@@ -25,7 +25,7 @@ namespace quiz.hub.Domain.Entities
         public bool IsActive { get; set; }
         public double AverageScore { get; set; } 
         public int QuestionsNumber => Questions.Count;
-        public double TotalScore => Questions.Select(x => x.Score).Sum();
+        public double TotalScore { get; set; }
 
         // nav props
         public Host Host { get; set; } = null!;

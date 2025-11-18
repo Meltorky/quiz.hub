@@ -157,12 +157,10 @@ namespace quiz.hub.Application.Services
         // calculate AVG Score
         public async Task<double> CalcAvgScore(Guid quizId , CancellationToken token) 
         {
-            var quiz = await _unitOfWork.Quizzes.FindById(quizId, token, x => x.Include(q => q.QuizCandidates))
-                 ?? throw new NotFoundException($"Quiz not Found !!");
+            if(await _unitOfWork.Quizzes.FindById(quizId, token) is null)
+                 throw new NotFoundException($"Quiz not Found !!");
 
-
-
-            return quiz.QuizCandidates.Select(x => x.TotalScore).Average() / quiz.TotalScore * 100;
+            return await _unitOfWork.QuizCandidates.CalcAvgScore(quizId , token);
         }
 
 
