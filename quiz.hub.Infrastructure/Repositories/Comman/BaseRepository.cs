@@ -35,6 +35,22 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
         }
 
 
+        public async Task<List<T>> GetAll(Pagination pagination, CancellationToken token, params Func<IQueryable<T>, IQueryable<T>>[] criterias)
+        {
+            IQueryable<T> query = _context.Set<T>();
+
+            if (criterias.Any())
+                foreach (var criteria in criterias)
+                    query = criteria(query);
+                
+            return await query
+                .Skip(pagination.Skip)
+                .Take(pagination.Take)
+                .AsNoTracking()
+                .ToListAsync(token);
+        }
+
+
         public async Task<List<T>> GetAll(QueryFilters<T> filters, CancellationToken token)
         {
             IQueryable<T> query = _context.Set<T>();

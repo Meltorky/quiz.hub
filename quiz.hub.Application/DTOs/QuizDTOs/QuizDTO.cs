@@ -23,5 +23,6 @@ namespace quiz.hub.Application.DTOs.QuizDTOs
         public double SuccessRate { get; set; }
         public int QuestionsNumber { get; set; }
         public double TotalScore { get; set; }
+        //public int EnrolledCandidateNumber { get; set; }
     }
 }

@@ -13,6 +13,7 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
         public IQuizRepo Quizzes { get; private set; }
         public IQuestionRepo Questions { get; private set; }
         public IQuizCandidatesRepo QuizCandidates { get; private set; }
+        public ICommanRepo Commans { get; private set; }
 
         public UnitOfWork(
             AppDbContext context,
@@ -21,7 +22,8 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
             IHostRepo hostRepo,
             IQuizRepo quizRepo,
             IQuestionRepo questionRepo,
-            IQuizCandidatesRepo quizCandidates)
+            IQuizCandidatesRepo quizCandidates,
+            ICommanRepo commans)
         {
             _context = context;
             Answers = answerRepo;
@@ -30,6 +32,7 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
             Quizzes = quizRepo;
             Questions = questionRepo;
             QuizCandidates = quizCandidates;
+            Commans = commans;
         }
 
         public async Task<int> SaveChangesAsync(CancellationToken token)

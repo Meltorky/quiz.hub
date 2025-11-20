@@ -5,9 +5,11 @@ using quiz.hub.Application.DTOs.QuizDTOs;
 using quiz.hub.Application.Helpers;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
 using quiz.hub.Application.Mappers;
+using quiz.hub.Domain.Comman;
 using quiz.hub.Domain.Entities;
 using quiz.hub.Domain.Enums;
 using quiz.hub.Domain.Identity;
+using System.Data;
 
 namespace quiz.hub.Application.Services
 {
@@ -15,7 +17,7 @@ namespace quiz.hub.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
-        public QuizService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+        public QuizService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager) : base()
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -140,7 +142,7 @@ namespace quiz.hub.Application.Services
         // Edit Quiz
         public async Task EditQuiz(EditQuizDTO dto, CancellationToken token)
         {
-            var quiz = await _unitOfWork.Quizzes.FindById(dto.Id,token)
+            var quiz = await _unitOfWork.Quizzes.FindById(dto.Id, token)
               ?? throw new NotFoundException($"Quiz not Found !!");
 
             if (quiz.HostId != dto.HostId)
@@ -155,13 +157,58 @@ namespace quiz.hub.Application.Services
 
 
         // calculate AVG Score
-        public async Task<double> CalcAvgScore(Guid quizId , CancellationToken token) 
+        public async Task<double> CalcAvgScore(Guid quizId, CancellationToken token)
         {
-            if(await _unitOfWork.Quizzes.FindById(quizId, token) is null)
-                 throw new NotFoundException($"Quiz not Found !!");
+            if (await _unitOfWork.Quizzes.FindById(quizId, token) is null)
+                throw new NotFoundException($"Quiz not Found !!");
 
-            return await _unitOfWork.QuizCandidates.CalcAvgScore(quizId , token);
+            return await _unitOfWork.QuizCandidates.CalcAvgScore(quizId, token);
         }
+
+
+        // get all Quizzes
+        public async Task<List<QuizDTO>> Handle(Guid userId, PositionEnums Position, CancellationToken token)
+        {
+            Pagination pagination = new Pagination();
+            switch (Position)
+            {
+                case PositionEnums.Admin:
+                    return await HandleAdmin(pagination, token);
+
+                case PositionEnums.Host:
+                    return await HandleHost(userId, pagination, token);
+
+                case PositionEnums.Candidate:
+                    return await HandleCandidate(userId, pagination, token);
+
+                default:
+                    throw new ForbiddenAccessException("Access Denied !!");
+            }
+        }
+
+
+        private async Task<List<QuizDTO>> HandleAdmin(Pagination pagination, CancellationToken token)
+        {
+            var quizzes = await _unitOfWork.Quizzes.GetAll(pagination,token);
+            return quizzes.ToQuizDTOs();
+        }
+
+
+        private async Task<List<QuizDTO>> HandleHost(Guid hostId, Pagination pagination, CancellationToken token)
+        {
+            var quizzes = await _unitOfWork.Quizzes.GetAll(pagination,token, q => q.Where(q => q.HostId == hostId));
+            return quizzes.ToQuizDTOs();
+        }
+
+
+        private async Task<List<QuizDTO>> HandleCandidate(Guid candidateId, Pagination pagination, CancellationToken token)
+        {
+            var quizzes = await _unitOfWork.QuizCandidates.GetCandidateQuizzes(candidateId, pagination, token);
+            return quizzes.ToQuizDTOs();
+        }
+
+
+
 
 
     }

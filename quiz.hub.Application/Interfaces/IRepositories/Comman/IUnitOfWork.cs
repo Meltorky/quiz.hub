@@ -14,6 +14,7 @@ namespace quiz.hub.Application.Interfaces.IRepositories.Comman
         IQuizRepo Quizzes { get;}
         IQuestionRepo Questions { get;}
         IQuizCandidatesRepo QuizCandidates { get; }
+        ICommanRepo Commans { get; }
 
         Task<int> SaveChangesAsync(CancellationToken token);
     }

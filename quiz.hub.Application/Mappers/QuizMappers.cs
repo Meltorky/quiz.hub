@@ -28,6 +28,12 @@ namespace quiz.hub.Application.Mappers
                 Title = quiz.Title,
                 TotalScore = quiz.TotalScore
             };
-        } 
+        }
+
+        public static List<QuizDTO> ToQuizDTOs(this List<Quiz> quizzes)
+        {
+            return quizzes.Select(q => q.ToQuizDTO()).ToList();
+        }
+
     }
 }

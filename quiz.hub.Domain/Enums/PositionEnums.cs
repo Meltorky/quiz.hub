@@ -8,6 +8,7 @@ namespace quiz.hub.Domain.Enums
 {
     public enum PositionEnums
     {
+        Admin,
         Host,
         Candidate
     }
