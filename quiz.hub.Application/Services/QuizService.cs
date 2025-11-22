@@ -4,6 +4,7 @@ using quiz.hub.Application.Common.Exceptions;
 using quiz.hub.Application.DTOs.QuizDTOs;
 using quiz.hub.Application.Helpers;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
+using quiz.hub.Application.Interfaces.IServices;
 using quiz.hub.Application.Mappers;
 using quiz.hub.Domain.Comman;
 using quiz.hub.Domain.Entities;
@@ -13,7 +14,7 @@ using System.Data;
 
 namespace quiz.hub.Application.Services
 {
-    public class QuizService
+    public class QuizService : IQuizService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -167,7 +168,7 @@ namespace quiz.hub.Application.Services
 
 
         // get all Quizzes
-        public async Task<List<QuizDTO>> Handle(Guid userId, PositionEnums Position, CancellationToken token)
+        public async Task<List<QuizDTO>> GetAll(Guid userId, PositionEnums Position, CancellationToken token)
         {
             Pagination pagination = new Pagination();
             switch (Position)

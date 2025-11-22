@@ -2,7 +2,9 @@
 using quiz.hub.API.ActionFilters;
 using quiz.hub.Application.Interfaces.IRepositories;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
+using quiz.hub.Application.Interfaces.IServices;
 using quiz.hub.Application.Interfaces.IServices.Authentication;
+using quiz.hub.Application.Services;
 using quiz.hub.Application.Services.Authentication;
 using quiz.hub.Infrastructure.Repositories;
 using quiz.hub.Infrastructure.Repositories.Comman;
@@ -83,6 +85,11 @@ builder.Services.AddScoped<ExecutionTimeFilter>();
 // register DI of services
 builder.Services.AddScoped<IAuthService,AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAnswerService, AnswerService>();
+builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<ICandidateService, CandidateService>();
+builder.Services.AddScoped<ICandidateAnswerService, CandidateAnswerService>();
 
 // Register my repos
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -94,7 +101,6 @@ builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 builder.Services.AddScoped<IQuizCandidatesRepo, QuizCandidatesRepo>();
 builder.Services.AddScoped<ICommanRepo, CommanRepo>();
 builder.Services.AddScoped<ICandidateAnswerRepo, CandidateAnswerRepo>();
-
 
 var app = builder.Build();
 

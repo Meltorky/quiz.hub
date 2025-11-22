@@ -1,13 +1,14 @@
 ﻿using quiz.hub.Application.DTOs.AnswerDTOs;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
+using quiz.hub.Application.Interfaces.IServices;
 using quiz.hub.Domain.Comman;
 
 namespace quiz.hub.Application.Services
 {
-    public class CandidateAnswerServive
+    public class CandidateAnswerService : ICandidateAnswerService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public CandidateAnswerServive(IUnitOfWork unitOfWork)
+        public CandidateAnswerService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

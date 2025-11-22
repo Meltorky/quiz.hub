@@ -3,11 +3,12 @@ using quiz.hub.Application.Common.Exceptions;
 using quiz.hub.Application.DTOs.QuestionDTOs;
 using quiz.hub.Application.Helpers;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
+using quiz.hub.Application.Interfaces.IServices;
 using quiz.hub.Application.Mappers;
 
 namespace quiz.hub.Application.Services
 {
-    public class QuestionService
+    public class QuestionService : IQuestionService
     {
         private readonly IUnitOfWork _unitOfWork;
         public QuestionService(IUnitOfWork unitOfWork)

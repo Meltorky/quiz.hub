@@ -1,10 +1,11 @@
 ﻿using quiz.hub.Application.DTOs.CandidateDTOs;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
+using quiz.hub.Application.Interfaces.IServices;
 using quiz.hub.Domain.Comman;
 
 namespace quiz.hub.Application.Services
 {
-    public class CandidateService
+    public class CandidateService : ICandidateService
     {
         private readonly IUnitOfWork _unitOfWork;
         public CandidateService(IUnitOfWork unitOfWork)

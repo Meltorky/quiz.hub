@@ -1,4 +1,4 @@
-﻿using quiz.hub.Domain.Enums;
+﻿using quiz.hub.Application.DTOs.AnswerDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace quiz.hub.Application.Interfaces.IServices
 {
-    public interface ICommanService
+    public interface ICandidateAnswerService
     {
-        Task<bool> UserExist(Guid Id, PositionEnums position, CancellationToken token);
+        Task<List<AnswerDTO>> GetAllByCandidateID(Guid Id, CancellationToken token);
     }
 }

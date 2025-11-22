@@ -2,11 +2,12 @@
 using quiz.hub.Application.Common.Exceptions;
 using quiz.hub.Application.DTOs.AnswerDTOs;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
+using quiz.hub.Application.Interfaces.IServices;
 using quiz.hub.Application.Mappers;
 
 namespace quiz.hub.Application.Services.Authentication
 {
-    public class AnswerService
+    public class AnswerService : IAnswerService
     {
         private readonly IUnitOfWork _unitOfWork;
         public AnswerService(IUnitOfWork unitOfWork)
