@@ -15,12 +15,11 @@ namespace quiz.hub.Application.Mappers
             return new QuizDTO 
             {
                 Id = quiz.Id,
-                QuestionsNumber = quiz.QuestionsNumber,
                 ConnectionCode = quiz.ConnectionCode,
                 CreatedAt = quiz.CreatedAt,
                 Description = quiz.Description,
                 DurationInMinutes = quiz.DurationInMinutes,
-                HostId = quiz.HostId,
+                HostId = quiz.HostUserId,
                 IsActive = quiz.IsActive,
                 IsPublished = quiz.IsPublished,
                 PublishedAt = quiz.PublishedAt,

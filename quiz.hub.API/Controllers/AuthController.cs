@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using quiz.hub.Application.DTOs.Auth;
 using quiz.hub.Application.DTOs.QuestionDTOs;
 using quiz.hub.Application.Interfaces.IServices.Authentication;
@@ -25,7 +26,7 @@ namespace quiz.hub.API.Controllers
         /// <response code="200">Returns JWT token and expiration</response>
         /// <response code="400">Bad Request</response>
         [HttpPost("login")]
-        public async Task<ActionResult<AuthenticatedUserDTO>> Login([FromQuery] LoginDTO dto)
+        public async Task<ActionResult<AuthenticatedUserDTO>> Login([FromBody] LoginDTO dto)
         {
             var result = await _authService.Login(dto);
             return Ok(result);
@@ -44,13 +45,6 @@ namespace quiz.hub.API.Controllers
         {
             var result = await _authService.Register(dto,token);
             return Ok(result);
-        }
-
-        [HttpPost("test")]
-        public async Task<IActionResult> test([FromBody] CreateQuestionDTO dto, CancellationToken token)
-        {
-            dto = null;
-            return Ok(dto);
         }
     }
 }

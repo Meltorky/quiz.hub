@@ -1,7 +1,8 @@
-﻿using quiz.hub.Application.DTOs.CandidateDTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using quiz.hub.Application.Common.Exceptions;
+using quiz.hub.Application.DTOs.QuizDTOs;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
 using quiz.hub.Application.Interfaces.IServices;
-using quiz.hub.Domain.Comman;
 
 namespace quiz.hub.Application.Services
 {
@@ -13,19 +14,16 @@ namespace quiz.hub.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        // get all candidates
-        public async Task<List<CandidateDTO>> GetAll(Guid quizId, CancellationToken token) 
+        // join Quiz
+        public async Task<JoinQuizResultDTO> JoinQuiz(JoinQuizDTO dto, CancellationToken token) 
         {
-            Pagination pagination = new Pagination();
-            var candidates = await _unitOfWork.QuizCandidates.GetQuizCandidates(quizId, pagination, token);
-            return candidates.Select(c => new CandidateDTO
-            {
-                QuizId = quizId,
-                CandidateId = c.CandidateId,
-                AttemptedAt = c.AttemptedAt,
-                Email = c.Candidate.Email,
-                TotalScore = c.TotalScore,
-            }).ToList();
+            var quiz = await _unitOfWork.Quizzes.ConnectQuiz(dto, token) 
+                ?? throw new NotFoundException("Invalid Connection Code");
+
+            return quiz;
         }
+
+        // start quiz => view questions/answers/   : bG task to send quiz from after Dura 
+
     }
 }

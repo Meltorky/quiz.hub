@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using quiz.hub.Domain.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace quiz.hub.Domain.Entities
@@ -9,7 +10,7 @@ namespace quiz.hub.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [ForeignKey(nameof(Host))]
-        public Guid HostId { get; set; }
+        public string HostUserId { get; set; } = default!;
 
         [MaxLength(7)]
         public string ConnectionCode { get; set; } = default!; // Unique join code
@@ -24,11 +25,10 @@ namespace quiz.hub.Domain.Entities
         public double DurationInMinutes { get; set; }
         public bool IsActive { get; set; }
         public double AverageScore { get; set; } 
-        public int QuestionsNumber => Questions.Count;
         public double TotalScore { get; set; }
 
         // nav props
-        public Host Host { get; set; } = null!;
+        public ApplicationUser Host { get; set; } = null!;
         public ICollection<Question> Questions { get; set; } = new List<Question>();
         public ICollection<QuizCandidate> QuizCandidates { get; set; } = new List<QuizCandidate>();
     }

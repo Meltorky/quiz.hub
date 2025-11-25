@@ -16,10 +16,10 @@ namespace quiz.hub.Infrastructure.Repositories
                 .AverageAsync(token) ?? 0;
         }
 
-        public async Task<List<Quiz>> GetCandidateQuizzes(Guid CandidateId, Pagination pagination,CancellationToken token) 
+        public async Task<List<Quiz>> GetCandidateQuizzes(string userId, Pagination pagination,CancellationToken token) 
         {
             return await _context.QuizCandidates
-                .Where(c => c.CandidateId == CandidateId)
+                .Where(c => c.CandidateUserId == userId)
                 .Select(x => x.Quiz)
                 .Skip(pagination.Skip)
                 .Take(pagination.Take)

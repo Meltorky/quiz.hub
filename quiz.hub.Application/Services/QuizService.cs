@@ -5,6 +5,7 @@ using quiz.hub.Application.DTOs.QuizDTOs;
 using quiz.hub.Application.Helpers;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
 using quiz.hub.Application.Interfaces.IServices;
+using quiz.hub.Application.Interfaces.IServices.Authentication;
 using quiz.hub.Application.Mappers;
 using quiz.hub.Domain.Comman;
 using quiz.hub.Domain.Entities;
@@ -17,25 +18,26 @@ namespace quiz.hub.Application.Services
     public class QuizService : IQuizService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IIsAuthorized _isAuthorized;
         private readonly UserManager<ApplicationUser> _userManager;
-        public QuizService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager) : base()
+        public QuizService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IIsAuthorized isAuthorized) : base()
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _isAuthorized = isAuthorized;
         }
 
 
         // host create quiz
         public async Task<CreateQuizResultDTO> CreateQuiz(string userId, CreateQuizDTO dto, CancellationToken token)
         {
-            if (await _userManager.FindByIdAsync(userId) is null)
+            var user = await _userManager.FindByIdAsync(userId) ??
                 throw new NotFoundException($"No user exit ID: {userId} !!");
 
-            var host = await _unitOfWork.Hosts.AddAsync(new Host { UserId = userId }, token);
 
             Quiz newQuiz = new Quiz
             {
-                HostId = host.Id,
+                HostUserId = user.Id,
                 Title = dto.Title,
                 Description = dto.Description,
                 DurationInMinutes = dto.DurationInMinutes,
@@ -48,8 +50,7 @@ namespace quiz.hub.Application.Services
             return new CreateQuizResultDTO
             {
                 QuizId = result.Id,
-                HostId = host.Id
-            };
+                HostId = result.HostUserId            };
         }
 
 
@@ -59,7 +60,7 @@ namespace quiz.hub.Application.Services
             var quiz = await _unitOfWork.Quizzes.FindById(dto.QuizId, token, q => q.Include(i => i.Questions))
               ?? throw new NotFoundException($"Quiz not Found !!");
 
-            if (quiz.HostId != dto.HostId)
+            if (quiz.HostUserId != dto.HostId)
                 throw new ForbiddenAccessException("You are not allowed to Activate this quiz.");
 
             if (quiz.IsPublished)
@@ -77,12 +78,12 @@ namespace quiz.hub.Application.Services
 
 
         // activate Quiz
-        public async Task<int> ActivateQuiz(CreateQuizResultDTO dto, CancellationToken token)
+        public async Task<bool> ActivateQuiz(CreateQuizResultDTO dto, CancellationToken token)
         {
             var quiz = await _unitOfWork.Quizzes.FindById(dto.QuizId, token, q => q.Include(i => i.Questions))
               ?? throw new NotFoundException($"Quiz not Found !!");
 
-            if (quiz.HostId != dto.HostId)
+            if (quiz.HostUserId != dto.HostId)
                 throw new ForbiddenAccessException("You are not allowed to Activate this quiz.");
 
             if (!quiz.IsPublished)
@@ -93,17 +94,17 @@ namespace quiz.hub.Application.Services
 
             quiz.IsActive = true;
 
-            return await _unitOfWork.SaveChangesAsync(token);
+            return await _unitOfWork.SaveChangesAsync(token) > 0;
         }
 
 
         // deActivate Quiz
-        public async Task<int> DeactivateQuiz(CreateQuizResultDTO dto, CancellationToken token)
+        public async Task<bool> DeactivateQuiz(CreateQuizResultDTO dto, CancellationToken token)
         {
             var quiz = await _unitOfWork.Quizzes.FindById(dto.QuizId, token, q => q.Include(i => i.Questions))
               ?? throw new NotFoundException($"Quiz not Found !!");
 
-            if (quiz.HostId != dto.HostId)
+            if (quiz.HostUserId != dto.HostId)
                 throw new ForbiddenAccessException("You are not allowed to DeActivate this quiz.");
 
             if (!quiz.IsPublished)
@@ -114,7 +115,7 @@ namespace quiz.hub.Application.Services
 
             quiz.IsActive = false;
 
-            return await _unitOfWork.SaveChangesAsync(token);
+            return await _unitOfWork.SaveChangesAsync(token) > 0;
         }
 
         // remove Quiz
@@ -124,10 +125,11 @@ namespace quiz.hub.Application.Services
                 .FindById(
                     dto.QuizId,
                     token,
+                    q => q.Include(i => i.Host),
                     q => q.Include(i => i.Questions).ThenInclude(i => i.Answers))
               ?? throw new NotFoundException($"Quiz not Found !!");
 
-            if (quiz.HostId != dto.HostId)
+            if (quiz.HostUserId != dto.HostId)
                 throw new ForbiddenAccessException("You are not allowed to Activate this quiz.");
 
             if (quiz.IsPublished)
@@ -137,6 +139,8 @@ namespace quiz.hub.Application.Services
                 quiz.Questions.SelectMany(q => q.Answers).ToList(), token);
 
             await _unitOfWork.Questions.DeleteRangeAsync(quiz.Questions, token);
+
+            await _unitOfWork.Quizzes.DeleteAsync(quiz,token);  // Cascade, Quiz will bedeleted.
         }
 
 
@@ -146,7 +150,7 @@ namespace quiz.hub.Application.Services
             var quiz = await _unitOfWork.Quizzes.FindById(dto.Id, token)
               ?? throw new NotFoundException($"Quiz not Found !!");
 
-            if (quiz.HostId != dto.HostId)
+            if (quiz.HostUserId != dto.HostId)
                 throw new ForbiddenAccessException("You are not allowed to Activate this quiz.");
 
             quiz.DurationInMinutes = dto.DurationInMinutes;
@@ -168,43 +172,41 @@ namespace quiz.hub.Application.Services
 
 
         // get all Quizzes
-        public async Task<List<QuizDTO>> GetAll(Guid userId, PositionEnums Position, CancellationToken token)
+        public async Task<List<QuizDTO>> GetAll(string userId, string Position, int pageNumber, int pageSize, CancellationToken token)
         {
-            Pagination pagination = new Pagination();
-            switch (Position)
-            {
-                case PositionEnums.Admin:
-                    return await HandleAdmin(pagination, token);
+            Pagination pagination = new Pagination() { PageNumber = pageNumber, PageSize = pageSize };
 
-                case PositionEnums.Host:
-                    return await HandleHost(userId, pagination, token);
+            if (PositionEnums.Admin.ToString().ToLower() == Position.ToLower() && await _isAuthorized.IsAdmin(userId.ToString()))
+                return await HandleAdmin(pagination, token);
 
-                case PositionEnums.Candidate:
-                    return await HandleCandidate(userId, pagination, token);
+            else if (PositionEnums.Host.ToString().ToLower() == Position.ToLower())
+                return await HandleHost(userId, pagination, token);
 
-                default:
-                    throw new ForbiddenAccessException("Access Denied !!");
-            }
+            else if (PositionEnums.Candidate.ToString().ToLower() == Position.ToLower())
+                return await HandleCandidate(userId, pagination, token);
+
+            else
+                throw new ForbiddenAccessException("Access Denied !!");
         }
 
 
         private async Task<List<QuizDTO>> HandleAdmin(Pagination pagination, CancellationToken token)
         {
-            var quizzes = await _unitOfWork.Quizzes.GetAll(pagination,token);
+            var quizzes = await _unitOfWork.Quizzes.GetAll(pagination, token);
             return quizzes.ToQuizDTOs();
         }
 
 
-        private async Task<List<QuizDTO>> HandleHost(Guid hostId, Pagination pagination, CancellationToken token)
+        private async Task<List<QuizDTO>> HandleHost(string userId, Pagination pagination, CancellationToken token)
         {
-            var quizzes = await _unitOfWork.Quizzes.GetAll(pagination,token, q => q.Where(q => q.HostId == hostId));
+            var quizzes = await _unitOfWork.Quizzes.GetAll(pagination, token, h => h.Where(i => i.HostUserId == userId));
             return quizzes.ToQuizDTOs();
         }
 
 
-        private async Task<List<QuizDTO>> HandleCandidate(Guid candidateId, Pagination pagination, CancellationToken token)
+        private async Task<List<QuizDTO>> HandleCandidate(string userId, Pagination pagination, CancellationToken token)
         {
-            var quizzes = await _unitOfWork.QuizCandidates.GetCandidateQuizzes(candidateId, pagination, token);
+            var quizzes = await _unitOfWork.QuizCandidates.GetCandidateQuizzes(userId, pagination, token);
             return quizzes.ToQuizDTOs();
         }
 

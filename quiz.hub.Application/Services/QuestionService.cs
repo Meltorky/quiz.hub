@@ -29,7 +29,8 @@ namespace quiz.hub.Application.Services
                 ?? throw new NotFoundException($"Quiz with ID '{dto.QuizId}' was not found.");
 
             // Handle image if provided
-            byte[]? image = dto.Image is not null ? await dto.Image.HandleImage() : null;
+            byte[]? image = !string.IsNullOrEmpty(dto.ImageBase64) ?
+                Convert.FromBase64String(dto.ImageBase64) : null;
 
             // Add question (still no commit)
             var createdQuestion = await _unitOfWork.Questions.AddAsync(dto.ToQuestionEntity(image), token);
@@ -66,8 +67,8 @@ namespace quiz.hub.Application.Services
             question.Score = dto.Score;
             question.Title = dto.Title;
 
-            if (dto.Image is not null)
-                question.Image = await dto.Image.HandleImage();
+            if (!string.IsNullOrEmpty(dto.ImageBase64))
+                question.Image = Convert.FromBase64String(dto.ImageBase64);
 
             await _unitOfWork.Questions.Edit(question, token);
             await _unitOfWork.SaveChangesAsync(token);

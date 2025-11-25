@@ -13,8 +13,12 @@ namespace quiz.hub.Domain.Identity
         public string Name { get; set; } = string.Empty;
         public byte[]? Cover { get; set; }
 
-        // Nav
-        public ICollection<Host> Hosts { get; set; } = new List<Host>();
-        public ICollection<Candidate> Candidates { get; set; } = new List<Candidate>();
+        // Nav props
+
+        // The quizzes this user created (as Host)
+        public ICollection<Quiz> HostedQuizzes { get; set; } = new List<Quiz>();
+
+        // The quizzes this user joined (as Candidate)
+        public ICollection<QuizCandidate> QuizCandidates { get; set; } = new List<QuizCandidate>();
     }
 }

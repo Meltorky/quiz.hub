@@ -42,12 +42,12 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
             if (criterias.Any())
                 foreach (var criteria in criterias)
                     query = criteria(query);
-                
+
             return await query
                 .Skip(pagination.Skip)
                 .Take(pagination.Take)
                 .AsNoTracking()
-                .ToListAsync(token);
+                .ToListAsync(token); ;
         }
 
 

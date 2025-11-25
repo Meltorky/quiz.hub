@@ -9,6 +9,5 @@ namespace quiz.hub.Application.Interfaces.IServices
 {
     public interface ICandidateService
     {
-        Task<List<CandidateDTO>> GetAll(Guid quizId, CancellationToken token);
     }
 }

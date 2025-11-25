@@ -178,29 +178,6 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.ToTable("Answers");
                 });
 
-            modelBuilder.Entity("quiz.hub.Domain.Entities.Candidate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Candidates");
-                });
-
             modelBuilder.Entity("quiz.hub.Domain.Entities.CandidateAnswer", b =>
                 {
                     b.Property<Guid>("CandidateId")
@@ -221,32 +198,22 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("QuizCandidateCandidateUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("QuizCandidateQuizId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("CandidateId", "QuizId", "AnswerId");
 
                     b.HasIndex("AnswerId");
 
                     b.HasIndex("QuestionId");
 
-                    b.HasIndex("QuizId", "CandidateId");
+                    b.HasIndex("QuizCandidateQuizId", "QuizCandidateCandidateUserId");
 
                     b.ToTable("CandidateAnswers");
-                });
-
-            modelBuilder.Entity("quiz.hub.Domain.Entities.Host", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Hosts");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.Question", b =>
@@ -301,8 +268,9 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.Property<double>("DurationInMinutes")
                         .HasColumnType("float");
 
-                    b.Property<Guid>("HostId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("HostUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -325,7 +293,7 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.HasIndex("ConnectionCode")
                         .IsUnique();
 
-                    b.HasIndex("HostId");
+                    b.HasIndex("HostUserId");
 
                     b.ToTable("Quizzes");
                 });
@@ -335,8 +303,8 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.Property<Guid>("QuizId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CandidateId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CandidateUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("AttemptedAt")
                         .HasColumnType("datetime2");
@@ -344,9 +312,9 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.Property<double>("TotalScore")
                         .HasColumnType("float");
 
-                    b.HasKey("QuizId", "CandidateId");
+                    b.HasKey("QuizId", "CandidateUserId");
 
-                    b.HasIndex("CandidateId");
+                    b.HasIndex("CandidateUserId");
 
                     b.ToTable("QuizCandidates");
                 });
@@ -486,16 +454,6 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("quiz.hub.Domain.Entities.Candidate", b =>
-                {
-                    b.HasOne("quiz.hub.Domain.Identity.ApplicationUser", "ApplicationUser")
-                        .WithMany("Candidates")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ApplicationUser");
-                });
-
             modelBuilder.Entity("quiz.hub.Domain.Entities.CandidateAnswer", b =>
                 {
                     b.HasOne("quiz.hub.Domain.Entities.Answer", "Answer")
@@ -512,7 +470,7 @@ namespace quiz.hub.Infrastructure.Migrations
 
                     b.HasOne("quiz.hub.Domain.Entities.QuizCandidate", "QuizCandidate")
                         .WithMany("CandidateAnswers")
-                        .HasForeignKey("QuizId", "CandidateId")
+                        .HasForeignKey("QuizCandidateQuizId", "QuizCandidateCandidateUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -521,17 +479,6 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.Navigation("Question");
 
                     b.Navigation("QuizCandidate");
-                });
-
-            modelBuilder.Entity("quiz.hub.Domain.Entities.Host", b =>
-                {
-                    b.HasOne("quiz.hub.Domain.Identity.ApplicationUser", "ApplicationUser")
-                        .WithMany("Hosts")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.Question", b =>
@@ -547,9 +494,9 @@ namespace quiz.hub.Infrastructure.Migrations
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.Quiz", b =>
                 {
-                    b.HasOne("quiz.hub.Domain.Entities.Host", "Host")
-                        .WithMany("Quizzes")
-                        .HasForeignKey("HostId")
+                    b.HasOne("quiz.hub.Domain.Identity.ApplicationUser", "Host")
+                        .WithMany("HostedQuizzes")
+                        .HasForeignKey("HostUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -558,10 +505,10 @@ namespace quiz.hub.Infrastructure.Migrations
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.QuizCandidate", b =>
                 {
-                    b.HasOne("quiz.hub.Domain.Entities.Candidate", "Candidate")
+                    b.HasOne("quiz.hub.Domain.Identity.ApplicationUser", "Candidate")
                         .WithMany("QuizCandidates")
-                        .HasForeignKey("CandidateId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("CandidateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("quiz.hub.Domain.Entities.Quiz", "Quiz")
@@ -573,16 +520,6 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.Navigation("Candidate");
 
                     b.Navigation("Quiz");
-                });
-
-            modelBuilder.Entity("quiz.hub.Domain.Entities.Candidate", b =>
-                {
-                    b.Navigation("QuizCandidates");
-                });
-
-            modelBuilder.Entity("quiz.hub.Domain.Entities.Host", b =>
-                {
-                    b.Navigation("Quizzes");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.Question", b =>
@@ -604,9 +541,9 @@ namespace quiz.hub.Infrastructure.Migrations
 
             modelBuilder.Entity("quiz.hub.Domain.Identity.ApplicationUser", b =>
                 {
-                    b.Navigation("Candidates");
+                    b.Navigation("HostedQuizzes");
 
-                    b.Navigation("Hosts");
+                    b.Navigation("QuizCandidates");
                 });
 #pragma warning restore 612, 618
         }

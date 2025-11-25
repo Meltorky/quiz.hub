@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using quiz.hub.Application.Common.Exceptions;
+﻿using quiz.hub.Application.Common.Exceptions;
 using quiz.hub.Application.DTOs.AnswerDTOs;
 using quiz.hub.Application.Interfaces.IRepositories.Comman;
 using quiz.hub.Application.Interfaces.IServices;

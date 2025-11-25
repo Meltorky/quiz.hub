@@ -3,17 +3,16 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using quiz.hub.Domain.Entities;
 using quiz.hub.Domain.Identity;
+using System.Reflection.Emit;
 
 namespace quiz.hub.Infrastructure.Data
 {
-    public class AppDbContext : IdentityDbContext<ApplicationUser>
+    public class AppDbContext: IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Answer> Answers { get; set; }
-        public DbSet<Candidate> Candidates { get; set; }
         public DbSet<CandidateAnswer> CandidateAnswers { get; set; }
-        public DbSet<Host> Hosts { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<QuizCandidate> QuizCandidates { get; set; }
@@ -28,14 +27,10 @@ namespace quiz.hub.Infrastructure.Data
                 .HasKey(ca => new { ca.CandidateId, ca.QuizId, ca.AnswerId });
 
             builder.Entity<QuizCandidate>()
-                .HasKey(qc => new { qc.QuizId, qc.CandidateId });
+                .HasKey(qc => new { qc.QuizId, qc.CandidateUserId });
 
 
             // create non-clustred indexes
-
-            builder.Entity<Candidate>()
-                .HasIndex(c => c.Email)
-                .IsUnique();
 
             builder.Entity<Quiz>()
                 .HasIndex(c => c.ConnectionCode)
@@ -43,12 +38,6 @@ namespace quiz.hub.Infrastructure.Data
 
 
             // restrict all one-many relations as [Hosts > Quizzes > Questions > Answers > QuizCandidates]
-
-            builder.Entity<Host>()
-                .HasMany(h => h.Quizzes)
-                .WithOne(q => q.Host)
-                .HasForeignKey(q => q.HostId)
-                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Quiz>()
                 .HasMany(h => h.Questions)
@@ -63,15 +52,15 @@ namespace quiz.hub.Infrastructure.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<ApplicationUser>()
-                .HasMany(a => a.Hosts)
-                .WithOne(h => h.ApplicationUser)
-                .HasForeignKey(h => h.UserId)
+                .HasMany(a => a.HostedQuizzes)
+                .WithOne(h => h.Host)
+                .HasForeignKey(h => h.HostUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<ApplicationUser>()
-                .HasMany(a => a.Candidates)
-                .WithOne(h => h.ApplicationUser)
-                .HasForeignKey(h => h.UserId)
+                .HasMany(a => a.QuizCandidates)
+                .WithOne(h => h.Candidate)
+                .HasForeignKey(h => h.CandidateUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
 

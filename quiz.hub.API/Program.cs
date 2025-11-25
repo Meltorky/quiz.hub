@@ -1,14 +1,7 @@
 
-using quiz.hub.API.ActionFilters;
-using quiz.hub.Application.Interfaces.IRepositories;
-using quiz.hub.Application.Interfaces.IRepositories.Comman;
-using quiz.hub.Application.Interfaces.IServices;
-using quiz.hub.Application.Interfaces.IServices.Authentication;
-using quiz.hub.Application.Services;
-using quiz.hub.Application.Services.Authentication;
-using quiz.hub.Infrastructure.Repositories;
-using quiz.hub.Infrastructure.Repositories.Comman;
-using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +21,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o=>
 
 // add JWT validation extention
 builder.Services.AddJwtAuthentication();
+
 
 builder.Services.AddControllers(options => 
 {
@@ -84,6 +78,7 @@ builder.Services.AddScoped<ExecutionTimeFilter>();
 
 // register DI of services
 builder.Services.AddScoped<IAuthService,AuthService>();
+builder.Services.AddScoped<IIsAuthorized, IsAuthorized>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
@@ -94,9 +89,7 @@ builder.Services.AddScoped<ICandidateAnswerService, CandidateAnswerService>();
 // Register my repos
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAnswerRepo, AnswerRepo>();
-builder.Services.AddScoped<IHostRepo, HostRepo>();
 builder.Services.AddScoped<IQuizRepo, QuizRepo>();
-builder.Services.AddScoped<ICandidateRepo, CandidateRepo>();
 builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 builder.Services.AddScoped<IQuizCandidatesRepo, QuizCandidatesRepo>();
 builder.Services.AddScoped<ICommanRepo, CommanRepo>();
@@ -112,10 +105,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+
+app.UseRouting();
+
 // use global exception handler middleware
 app.UseMiddleware<ExceptionHandlerMiddleware>();
-
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
@@ -124,6 +119,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 // seed Identity user and roles
-await app.Services.SeedIdentityAsync();
+// await app.Services.SeedIdentityAsync();
 
 app.Run();

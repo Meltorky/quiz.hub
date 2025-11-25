@@ -20,20 +20,23 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
 
         public async Task<bool> UserExist(Guid Id, PositionEnums position, CancellationToken token)
         {
-            switch (position)
-            {
-                case PositionEnums.Admin:
-                    return await _userManager.Users.AnyAsync(x => x.Id == Id.ToString());
+            //switch (position)
+            //{
+            //    case PositionEnums.Admin:
+            //        return await _userManager.Users.AnyAsync(x => x.Id == Id.ToString());
 
-                case PositionEnums.Host:
-                    return await _context.Hosts.AnyAsync(x => x.Id == Id, token);
+            //    case PositionEnums.Host:
+            //        return await _context.us.AnyAsync(x => x.Id == Id, token);
 
-                case PositionEnums.Candidate:
-                    return await _context.Candidates.AnyAsync(x => x.Id == Id, token);
+            //    case PositionEnums.Candidate:
+            //        return await _context.Candidates.AnyAsync(x => x.Id == Id, token);
 
-                default:
-                    throw new NotFoundException("Invalid ID !!");
-            }
+            //    default:
+            //        throw new NotFoundException("Invalid ID !!");
+
+            return true;
+
         }
     }
 }
+

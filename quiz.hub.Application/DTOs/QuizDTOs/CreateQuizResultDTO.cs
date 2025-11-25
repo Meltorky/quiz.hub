@@ -9,6 +9,6 @@ namespace quiz.hub.Application.DTOs.QuizDTOs
     public class CreateQuizResultDTO
     {
         public Guid QuizId { get; set; }
-        public Guid HostId { get; set; }
+        public string HostId { get; set; } = default!;
     }
 }

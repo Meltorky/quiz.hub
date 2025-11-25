@@ -11,7 +11,7 @@ namespace quiz.hub.Application.DTOs.QuizDTOs
     public class EditQuizDTO
     {
         public Guid Id { get; set; }
-        public Guid HostId { get; set; }
+        public string HostId { get; set; } = default!;
         public double DurationInMinutes { get; set; }
         public string Title { get; set; } = default!;
         public string? Description { get; set; }

@@ -11,7 +11,7 @@ namespace quiz.hub.Application.DTOs.QuizDTOs
     public class QuizDTO
     {
         public Guid Id { get; set; }
-        public Guid HostId { get; set; }
+        public string HostId { get; set; } = default!;
         public string ConnectionCode { get; set; } = default!;
         public string Title { get; set; } = default!;
         public string? Description { get; set; }

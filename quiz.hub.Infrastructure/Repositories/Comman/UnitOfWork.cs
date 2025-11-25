@@ -8,8 +8,6 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
     {
         private readonly AppDbContext _context;
         public IAnswerRepo Answers { get; private set; }
-        public ICandidateRepo Candidates { get; private set; }
-        public IHostRepo Hosts { get; private set; }
         public IQuizRepo Quizzes { get; private set; }
         public IQuestionRepo Questions { get; private set; }
         public IQuizCandidatesRepo QuizCandidates { get; private set; }
@@ -19,8 +17,6 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
         public UnitOfWork(
             AppDbContext context,
             IAnswerRepo answerRepo,
-            ICandidateRepo candidateRepo,
-            IHostRepo hostRepo,
             IQuizRepo quizRepo,
             IQuestionRepo questionRepo,
             IQuizCandidatesRepo quizCandidates,
@@ -29,8 +25,6 @@ namespace quiz.hub.Infrastructure.Repositories.Comman
         {
             _context = context;
             Answers = answerRepo;
-            Candidates = candidateRepo;
-            Hosts = hostRepo;
             Quizzes = quizRepo;
             Questions = questionRepo;
             QuizCandidates = quizCandidates;

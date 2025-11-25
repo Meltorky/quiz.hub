@@ -14,7 +14,6 @@ namespace quiz.hub.Application.Mappers
         {
             return new Answer 
             {
-                QuestionId = dto.QuestionId,
                 Text = dto.Text,
                 IsCorrect = dto.IsCorrect,
             };
@@ -31,7 +30,7 @@ namespace quiz.hub.Application.Mappers
             };
         }
 
-        public static List<Answer> ToAnswerEntities(this List<CreateAnswerDTO> dtos, Guid questionId)
+        public static List<Answer> ToAnswerEntities(this List<CreateAnswersDTO> dtos, Guid questionId)
         {
             return dtos.Select(dto => new Answer
             {
@@ -60,6 +59,7 @@ namespace quiz.hub.Application.Mappers
             {
                 Text = answer.Text,
                 Id = answer.Id,
+                QuestionId = answer.QuestionId,
                 IsCorrect = answer.IsCorrect
             }).ToList();
         }

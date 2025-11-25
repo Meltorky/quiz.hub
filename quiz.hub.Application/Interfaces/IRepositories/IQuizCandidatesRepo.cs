@@ -11,7 +11,7 @@ namespace quiz.hub.Application.Interfaces.IRepositories
     public interface IQuizCandidatesRepo
     {
         Task<double> CalcAvgScore(Guid quizId, CancellationToken token);
-        Task<List<Quiz>> GetCandidateQuizzes(Guid QuizId, Pagination pagination, CancellationToken token);
+        Task<List<Quiz>> GetCandidateQuizzes(string candidateId, Pagination pagination, CancellationToken token);
         Task<List<QuizCandidate>> GetQuizCandidates(Guid quizId, Pagination pagination, CancellationToken token);
     }
 }

@@ -1,4 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using quiz.hub.Application.Attributes;
+using quiz.hub.Application.Constants;
+using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace quiz.hub.Application.DTOs.Auth
 {
@@ -12,8 +16,8 @@ namespace quiz.hub.Application.DTOs.Auth
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; } = default!;
-        
-        //[ImageValidation(ImageFileOptions.MaxSizeInMB,ImageFileOptions.AllowedExtentions)]
+
+        //[ImageValidation(ImageFileOptions.MaxSizeInMB, ImageFileOptions.AllowedExtentions)]
         //[SwaggerSchema(Description = ImageFileOptions.ErrorMessage)]
         //public IFormFile? cover { get; set; }
     }
