@@ -9,11 +9,13 @@ namespace quiz.hub.API.Controllers
     public class QuizController : ControllerBase
     {
         private readonly IQuizService _quizService;
+        private readonly ICandidateService _cndidateService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public QuizController(IQuizService quizService, UserManager<ApplicationUser> userManager)
+        public QuizController(IQuizService quizService, UserManager<ApplicationUser> userManager, ICandidateService cndidateService)
         {
             _quizService = quizService;
             _userManager = userManager;
+            _cndidateService = cndidateService;
         }
 
         // get all
@@ -82,6 +84,13 @@ namespace quiz.hub.API.Controllers
         {
             await _quizService.RemoveQuiz(dto, token);
             return NoContent();
+        }
+
+        [HttpPost("join")]
+        public async Task<IActionResult> Join(string candidateId, Guid quizId, CancellationToken token) 
+        {
+            await _cndidateService.JoinQuiz(candidateId, quizId, token);
+            return Ok();
         }
     }
 }

@@ -3,11 +3,18 @@ using quiz.hub.Application.Interfaces.IRepositories;
 using quiz.hub.Domain.Comman;
 using quiz.hub.Domain.Entities;
 using quiz.hub.Infrastructure.Data;
+using quiz.hub.Infrastructure.Repositories.Comman;
 
 namespace quiz.hub.Infrastructure.Repositories
 {
-    public class QuizCandidatesRepo(AppDbContext _context) : IQuizCandidatesRepo
+    public class QuizCandidatesRepo : BaseRepository<QuizCandidate> , IQuizCandidatesRepo
     {
+        private readonly AppDbContext _context;
+        public QuizCandidatesRepo(AppDbContext context) : base(context)
+        {
+            _context = context;
+        }
+
         public async Task<double> CalcAvgScore(Guid quizId, CancellationToken token)
         {
             return await _context.QuizCandidates

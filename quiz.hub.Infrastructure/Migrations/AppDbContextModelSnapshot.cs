@@ -180,10 +180,13 @@ namespace quiz.hub.Infrastructure.Migrations
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.CandidateAnswer", b =>
                 {
-                    b.Property<Guid>("CandidateId")
+                    b.Property<Guid>("QuizId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("QuizId")
+                    b.Property<string>("CandidateId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("QuestionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("AnswerId")
@@ -195,23 +198,13 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.Property<bool>("IsTrue")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("QuizCandidateCandidateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<Guid>("QuizCandidateQuizId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CandidateId", "QuizId", "AnswerId");
+                    b.HasKey("QuizId", "CandidateId", "QuestionId");
 
                     b.HasIndex("AnswerId");
 
-                    b.HasIndex("QuestionId");
+                    b.HasIndex("CandidateId");
 
-                    b.HasIndex("QuizCandidateQuizId", "QuizCandidateCandidateUserId");
+                    b.HasIndex("QuestionId");
 
                     b.ToTable("CandidateAnswers");
                 });
@@ -459,22 +452,30 @@ namespace quiz.hub.Infrastructure.Migrations
                     b.HasOne("quiz.hub.Domain.Entities.Answer", "Answer")
                         .WithMany()
                         .HasForeignKey("AnswerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("quiz.hub.Domain.Identity.ApplicationUser", "Candidate")
+                        .WithMany("CandidateAnswers")
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("quiz.hub.Domain.Entities.Question", "Question")
-                        .WithMany()
+                        .WithMany("CandidateAnswers")
                         .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("quiz.hub.Domain.Entities.QuizCandidate", "QuizCandidate")
                         .WithMany("CandidateAnswers")
-                        .HasForeignKey("QuizCandidateQuizId", "QuizCandidateCandidateUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("QuizId", "CandidateId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Answer");
+
+                    b.Navigation("Candidate");
 
                     b.Navigation("Question");
 
@@ -525,6 +526,8 @@ namespace quiz.hub.Infrastructure.Migrations
             modelBuilder.Entity("quiz.hub.Domain.Entities.Question", b =>
                 {
                     b.Navigation("Answers");
+
+                    b.Navigation("CandidateAnswers");
                 });
 
             modelBuilder.Entity("quiz.hub.Domain.Entities.Quiz", b =>
@@ -541,6 +544,8 @@ namespace quiz.hub.Infrastructure.Migrations
 
             modelBuilder.Entity("quiz.hub.Domain.Identity.ApplicationUser", b =>
                 {
+                    b.Navigation("CandidateAnswers");
+
                     b.Navigation("HostedQuizzes");
 
                     b.Navigation("QuizCandidates");

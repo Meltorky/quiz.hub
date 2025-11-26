@@ -9,5 +9,6 @@ namespace quiz.hub.Application.Interfaces.IServices
 {
     public interface ICandidateService
     {
+        Task JoinQuiz(string candidateId, Guid quizId, CancellationToken token);
     }
 }

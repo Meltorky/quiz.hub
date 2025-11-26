@@ -1,17 +1,11 @@
 ﻿using quiz.hub.Domain.Identity;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace quiz.hub.Domain.Entities
 {
     public class CandidateAnswer
     {
         public Guid QuizId { get; set; }                      // part of composite key
-        public Guid CandidateId { get; set; }                 // part of composite key
+        public string CandidateId { get; set; } = default!;   // part of composite key
         public Guid QuestionId { get; set; }                  // part of composite key
         public Guid AnswerId { get; set; }                    // chosen answer
         public bool IsTrue { get; set; }

@@ -23,5 +23,6 @@ namespace quiz.hub.Domain.Entities
         // nav props
         public Quiz Quiz { get; set; } = null!;
         public ICollection<Answer> Answers { get; set; } = new List<Answer>();
+        public ICollection<CandidateAnswer> CandidateAnswers { get; set; } = new List<CandidateAnswer>();
     }
 }

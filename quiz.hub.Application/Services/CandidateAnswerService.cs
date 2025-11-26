@@ -18,7 +18,7 @@ namespace quiz.hub.Application.Services
         {
             Pagination pagination = new Pagination();
             var list = await _unitOfWork.CandidateAnswers
-                .GetAll(pagination,token,x => x.Where(ca => ca.CandidateId == Id));
+                .GetAll(pagination,token,x => x.Where(ca => ca.CandidateId == Id.ToString()));
 
             return list.Select(i => new AnswerDTO 
             {

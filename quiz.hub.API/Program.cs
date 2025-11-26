@@ -1,6 +1,8 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using quiz.hub.Application.Interfaces.IServices.ICacheServices;
+using quiz.hub.Application.Services.CacheServices;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o=>
     o.Password.RequireLowercase = true;
     o.Password.RequireUppercase = true;
 }).AddEntityFrameworkStores<AppDbContext>();
+
+// Add infrastructure services
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // add JWT validation extention
 builder.Services.AddJwtAuthentication();
@@ -76,6 +81,9 @@ builder.Services.AddOptions<JwtOptions>()
 // register DI of ActionFilter
 builder.Services.AddScoped<ExecutionTimeFilter>();
 
+// register caching services
+builder.Services.AddScoped<ICandidateSessionService, CandidateSessionService>();
+
 // register DI of services
 builder.Services.AddScoped<IAuthService,AuthService>();
 builder.Services.AddScoped<IIsAuthorized, IsAuthorized>();
@@ -119,6 +127,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 // seed Identity user and roles
-// await app.Services.SeedIdentityAsync();
+await app.Services.SeedIdentityAsync();
 
 app.Run();

@@ -20,5 +20,7 @@ namespace quiz.hub.Domain.Identity
 
         // The quizzes this user joined (as Candidate)
         public ICollection<QuizCandidate> QuizCandidates { get; set; } = new List<QuizCandidate>();
+
+        public ICollection<CandidateAnswer> CandidateAnswers { get; set; } = new List<CandidateAnswer>();
     }
 }

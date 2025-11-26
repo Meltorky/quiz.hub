@@ -24,7 +24,7 @@ namespace quiz.hub.Infrastructure.Data
             // create composite keys
 
             builder.Entity<CandidateAnswer>()
-                .HasKey(ca => new { ca.CandidateId, ca.QuizId, ca.AnswerId });
+                .HasKey(ca => new { ca.CandidateId, ca.QuizId, ca.QuestionId });
 
             builder.Entity<QuizCandidate>()
                 .HasKey(qc => new { qc.QuizId, qc.CandidateUserId });
@@ -63,6 +63,38 @@ namespace quiz.hub.Infrastructure.Data
                 .HasForeignKey(h => h.CandidateUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<CandidateAnswer>(entity =>
+            {
+                // Composite Primary Key
+                entity.HasKey(ca => new { ca.QuizId, ca.CandidateId, ca.QuestionId });
+
+                // 1. Reuse CandidateId (from PK) as FK to ApplicationUser (Candidate)
+                entity.HasOne(ca => ca.Candidate)
+                      .WithMany(u => u.CandidateAnswers) // add this collection to ApplicationUser if not exists
+                      .HasForeignKey(ca => ca.CandidateId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // 2. Reuse (QuizId + CandidateId) as FK to QuizCandidate (bridge table)
+                entity.HasOne(ca => ca.QuizCandidate)
+                      .WithMany(qc => qc.CandidateAnswers) // add this collection to QuizCandidate
+                      .HasForeignKey(ca => new { ca.QuizId, ca.CandidateId })
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // 3. Reuse QuestionId as FK to Question
+                entity.HasOne(ca => ca.Question)
+                      .WithMany(q => q.CandidateAnswers) // optional: track answers per question
+                      .HasForeignKey(ca => ca.QuestionId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // 4. AnswerId → Answer
+                entity.HasOne(ca => ca.Answer)
+                      .WithMany()
+                      .HasForeignKey(ca => ca.AnswerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Optional: Add indexes for performance
+                entity.HasIndex(ca => ca.AnswerId);
+            });
 
             // Customize a special schema for Identity Tables
 

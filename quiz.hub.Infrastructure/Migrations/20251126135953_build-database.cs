@@ -277,35 +277,40 @@ namespace quiz.hub.Infrastructure.Migrations
                 columns: table => new
                 {
                     QuizId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CandidateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AnswerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CandidateId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     QuestionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AnswerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsTrue = table.Column<bool>(type: "bit", nullable: false),
-                    AnswerScore = table.Column<double>(type: "float", nullable: false),
-                    QuizCandidateQuizId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    QuizCandidateCandidateUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    AnswerScore = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CandidateAnswers", x => new { x.CandidateId, x.QuizId, x.AnswerId });
+                    table.PrimaryKey("PK_CandidateAnswers", x => new { x.QuizId, x.CandidateId, x.QuestionId });
                     table.ForeignKey(
                         name: "FK_CandidateAnswers_Answers_AnswerId",
                         column: x => x.AnswerId,
                         principalTable: "Answers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_CandidateAnswers_Questions_QuestionId",
                         column: x => x.QuestionId,
                         principalTable: "Questions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CandidateAnswers_QuizCandidates_QuizCandidateQuizId_QuizCandidateCandidateUserId",
-                        columns: x => new { x.QuizCandidateQuizId, x.QuizCandidateCandidateUserId },
+                        name: "FK_CandidateAnswers_QuizCandidates_QuizId_CandidateId",
+                        columns: x => new { x.QuizId, x.CandidateId },
                         principalTable: "QuizCandidates",
                         principalColumns: new[] { "QuizId", "CandidateUserId" },
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CandidateAnswers_Users_CandidateId",
+                        column: x => x.CandidateId,
+                        principalSchema: "security",
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -319,14 +324,14 @@ namespace quiz.hub.Infrastructure.Migrations
                 column: "AnswerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CandidateAnswers_CandidateId",
+                table: "CandidateAnswers",
+                column: "CandidateId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CandidateAnswers_QuestionId",
                 table: "CandidateAnswers",
                 column: "QuestionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CandidateAnswers_QuizCandidateQuizId_QuizCandidateCandidateUserId",
-                table: "CandidateAnswers",
-                columns: new[] { "QuizCandidateQuizId", "QuizCandidateCandidateUserId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Questions_QuizId",

@@ -20,7 +20,9 @@ namespace quiz.hub.Application.Services.Authentication
             if(await _unitOfWork.Questions.FindById(dto.QuestionId, token) is null)
                 throw new NotFoundException($"Question with ID '{dto.QuestionId}' doesn't exist !!");
 
-            var answer = await _unitOfWork.Answers.AddAsync(dto.ToAnswer(), token);
+            var r = dto.ToAnswer();
+
+            var answer = await _unitOfWork.Answers.AddAsync(r, token);
             await _unitOfWork.SaveChangesAsync(token);
 
             return answer.ToAnswerDTO();

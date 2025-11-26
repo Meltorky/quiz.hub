@@ -1,4 +1,5 @@
-﻿using quiz.hub.Domain.Comman;
+﻿using quiz.hub.Application.Interfaces.IRepositories.Comman;
+using quiz.hub.Domain.Comman;
 using quiz.hub.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace quiz.hub.Application.Interfaces.IRepositories
 {
-    public interface IQuizCandidatesRepo
+    public interface IQuizCandidatesRepo : IBaseRepository<QuizCandidate>
     {
         Task<double> CalcAvgScore(Guid quizId, CancellationToken token);
         Task<List<Quiz>> GetCandidateQuizzes(string candidateId, Pagination pagination, CancellationToken token);
